@@ -8,12 +8,13 @@ module.exports = class {
             deskripsi: req.body.deskripsi,
             tipe: req.body.tipe,
             available: true,
-            createdBy: req.adminlogin.nama
+            createdBy: req.adminlogin.id
         })
             .then((result) => {
                 res.status(201).send({
                     status: 201,
                     message: 'Barangs baru terupload!',
+
                     data: result,
                 })
             })
@@ -28,6 +29,7 @@ module.exports = class {
                 .then((result) => {
                     res.status(200).send({
                         status: 200,
+    
                         data: result,
                     })
                 })
@@ -43,6 +45,7 @@ module.exports = class {
                 .then((result) => {
                     res.status(200).send({
                         status: 200,
+    
                         data: result,
                     })
                 })
@@ -53,8 +56,7 @@ module.exports = class {
 
     static async updateBarangs(req, res, next) {
     try{
-        barangs.update({...req.body},{where: {id: req.params.id},returning: true})
-        // barangs.update({ UpdatedBy: req.adminlogin.id}) update belum bisa
+        barangs.update({...req.body,UpdatedBy: req.adminlogin.id},{where: {id: req.params.id},returning: true})
               res.status(201).send({
                 status: 201,
                 message: 'Data barang diupdate!',
@@ -67,12 +69,12 @@ module.exports = class {
     }
     static async deleteBarangs(req, res, next) {
         try{
-            const delBarangs = barangs.update({...req.body.available},{where: {id: req.params.id},returning: true})
-            delBarangs=false
+            const delBarangs = barangs.update({deletedBy: req.adminlogin.id, available: false},{where: {id: req.params.id},returning: true})
                   res.status(201).send({
                     status: 201,
                     message: 'Data barangs dihapus!',
-                    data: update.body
+
+                    data: delBarangs.body
                 })
         }
         catch(err){

@@ -3,19 +3,25 @@ const bcrypt = require('bcrypt')
 const jwt = require('../helper/jwt')
 
 module.exports = class {
-    static async register(req, res, next) {
-        user.create(req.body)
-            .then((result) => {
-                res.status(201).send({
-                    status: 201,
-                    message: 'New User Created!',
-                    data: result,
-                })
+    static async registerAdmin (req, res, next) {
+        try {
+            const admin = await user.create({
+                nama: req.body.nama,
+                password: req.body.password,
+                email: req.body.email,
+                level:"admin",
             })
-            .catch((err) => {
-                res.status(400).send(err)
+            res.status(200).send({
+                status: 200,
+                message: 'Data Admin Ditambahkan!',
+                data: admin 
             })
+        } catch (error) {
+            console.log(error);
+            res.status(500).send(error)
+        }
     }
+    
     static async login (req, res, next) {
         try {
             const admin = await user.findOne({where: {email: req.body.email}})
@@ -66,4 +72,30 @@ module.exports = class {
                 res.status(400).send(err)
             })
     }
+    static async deleteUser(req, res, next) {
+        try{
+            const delUser = user.update({deletedBy: req.adminlogin.id, available: false},{where: {id: req.params.id},returning: true})
+                  res.status(201).send({
+                    status: 201,
+                    message: 'Data user dihapus!',
+                    data: delUser.body
+                })
+        }
+        catch(err){
+            res.status(500).send(err)
+        }
+        }
+        static async currentUser (req, res, next) {
+            try{
+                res.status(200).send({
+                    status: 200,
+                    message: 'Data User Ditemukan!',
+                    data: req.adminlogin
+                })
+            } catch (error) {
+                console.log(error);
+                res.status(500).send(error)
+            }
+        }
+        
 }
